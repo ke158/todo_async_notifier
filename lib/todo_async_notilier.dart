@@ -23,15 +23,21 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   Future<List<Todo>> fetchData() async {
-    final snaps = await collectionReference.get();
-    return snaps.docs.map((doc) => Todo.fromDocument(doc)).toList();
+    final snapshots = await collectionReference.get();
+    // Convert each document into a Todo object
+    return snapshots.docs.map((doc) => Todo.fromDocument(doc)).toList();
   }
 
   Future<void> add({required String title}) async {
+    // Create a new todo object.
     final todo = Todo(title: title);
+    // Set the state to loading.
     state = const AsyncValue.loading();
+    // Set the state to success after the todo is added.
     state = await AsyncValue.guard(() async {
-      await collectionReference.doc().set(todo.toJson());
+      // Add the todo to the collection.
+      await collectionReference.add(todo.toJson());
+      // Fetch the data.
       return await fetchData();
     });
   }
@@ -40,9 +46,11 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
     final todo = state.value!.firstWhere((todo) => todo.id == id);
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await collectionReference
-          .doc(id)
-          .update(todo.copyWith(isCompleted: !todo.isCompleted).toJson());
+      // Update todo.isCompleted to the opposite of the current value.
+      final updatedTodo = todo.copyWith(isCompleted: !todo.isCompleted);
+      // Update the document in Firestore.
+      await collectionReference.doc(id).update(updatedTodo.toJson());
+      // Fetch and return the new list of todos.
       return await fetchData();
     });
   }
@@ -50,7 +58,9 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
   Future<void> delete({required String id}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
+      // Delete the document.
       await collectionReference.doc(id).delete();
+      // Return the updated data.
       return await fetchData();
     });
   }
