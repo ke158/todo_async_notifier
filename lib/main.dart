@@ -82,7 +82,7 @@ class MyHomePage extends ConsumerWidget {
                                     Checkbox(
                                       value: todo.isCompleted,
                                       onChanged: (_) async =>
-                                          notifier.toggle(id: todo.id!),
+                                          await notifier.toggle(id: todo.id!),
                                     ),
                                     Text(
                                       todo.title,
