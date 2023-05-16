@@ -33,7 +33,10 @@ class MyHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final TextEditingController controller = TextEditingController();
+    // AsyncNotifierProviderを呼び出す。
+    // 非同期でAsyncValue<List<Todo>>の状態が取得できる。
     final asyncValue = ref.watch(todoAsyncNotifierProvider);
+    // .notifierを使うと、AsyncNotifierのメソッドを呼び出すことができる。
     final notifier = ref.watch(todoAsyncNotifierProvider.notifier);
 
     return Scaffold(
@@ -44,6 +47,7 @@ class MyHomePage extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
         child: Column(
           children: [
+            // テキストフィールドとTodo作成ボタン
             Row(
               children: [
                 Expanded(
@@ -54,7 +58,8 @@ class MyHomePage extends ConsumerWidget {
                 ),
                 IconButton(
                   onPressed: () async {
-                    notifier.add(title: controller.text);
+                    // Todoの追加
+                    await notifier.add(title: controller.text);
                   },
                   icon: const Icon(Icons.play_arrow),
                 )
@@ -65,9 +70,11 @@ class MyHomePage extends ConsumerWidget {
               child: Text("TODO"),
             ),
             asyncValue.when(
+              // ローディング状態
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) =>
-                  Center(child: Text('Error: $error')),
+              // エラー時の処理
+              error: (error, _) => Center(child: Text('Error: $error')),
+              // データの取得に成功した場合の処理
               data: (data) => data.isNotEmpty
                   ? Expanded(
                       child: ListView.builder(
@@ -82,8 +89,10 @@ class MyHomePage extends ConsumerWidget {
                                     Checkbox(
                                       value: todo.isCompleted,
                                       onChanged: (_) async =>
+                                          // チェックボタンの更新
                                           await notifier.toggle(id: todo.id!),
                                     ),
+                                    // isCompletedがtrueの場合は文字に斜線を入れ、色はグレーにする
                                     Text(
                                       todo.title,
                                       style: TextStyle(
@@ -99,6 +108,7 @@ class MyHomePage extends ConsumerWidget {
                                 ),
                               ),
                               IconButton(
+                                // Todoの削除
                                 onPressed: () async =>
                                     await notifier.delete(id: todo.id!),
                                 icon: const Icon(Icons.delete),
