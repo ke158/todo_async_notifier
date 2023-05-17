@@ -19,6 +19,7 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
   CollectionReference get collectionReference =>
       ref.read(collectionReferenceProvider);
 
+  // build メソッドをオーバーライドして FutureOr を返す
   @override
   FutureOr<List<Todo>> build() async {
     // 初期データの読み込み
@@ -37,7 +38,7 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
     final todo = Todo(title: title);
     // stateをローディング状態にする
     state = const AsyncValue.loading();
-    // 例外の発生時は AsyncErrorを返す
+    // 例外の発生時は AsyncErrorを返す(try~catchを省くことができます)
     state = await AsyncValue.guard(() async {
       await collectionReference.add(todo.toJson());
       return await fetchData();
@@ -49,7 +50,7 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
     final todo = state.value!.firstWhere((todo) => todo.id == id);
     // stateをローディング状態にする
     state = const AsyncValue.loading();
-    // 例外の発生時は AsyncErrorを返す
+    // 例外の発生時は AsyncErrorを返す(try~catchを省くことができます)
     state = await AsyncValue.guard(() async {
       final updatedTodo = todo.copyWith(isCompleted: !todo.isCompleted);
       await collectionReference.doc(id).update(updatedTodo.toJson());
@@ -60,7 +61,7 @@ class TodoAsyncNotifier extends AsyncNotifier<List<Todo>> {
   // データの削除メソッド
   Future<void> delete({required String id}) async {
     state = const AsyncValue.loading();
-    // 例外の発生時は AsyncErrorを返す
+    // 例外の発生時は AsyncErrorを返す(try~catchを省くことができます)
     state = await AsyncValue.guard(() async {
       await collectionReference.doc(id).delete();
       return await fetchData();

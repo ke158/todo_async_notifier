@@ -10,6 +10,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // ProviderScopeでラップ
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -69,8 +70,9 @@ class MyHomePage extends ConsumerWidget {
               padding: EdgeInsets.symmetric(vertical: 30),
               child: Text("TODO"),
             ),
+            // ここからasyncNotifierProviderの定義
             asyncValue.when(
-              // ローディング状態
+              // ローディング時の処理
               loading: () => const Center(child: CircularProgressIndicator()),
               // エラー時の処理
               error: (error, _) => Center(child: Text('Error: $error')),
@@ -120,6 +122,7 @@ class MyHomePage extends ConsumerWidget {
                     )
                   : Container(),
             ),
+            // asyncNotifierProviderの定義終了
           ],
         ),
       ),
