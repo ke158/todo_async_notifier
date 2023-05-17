@@ -10,6 +10,7 @@ final fireStoreProvider =
 final collectionReferenceProvider = Provider<CollectionReference>(
     (ref) => ref.read(fireStoreProvider).collection('todoList'));
 
+// AsyncNotifierProviderを定義。
 final todoAsyncNotifierProvider =
     AsyncNotifierProvider<TodoAsyncNotifier, List<Todo>>(TodoAsyncNotifier.new);
 
